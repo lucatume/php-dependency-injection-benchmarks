@@ -21,7 +21,7 @@ $runs = 10;
 cliPrint('Running each test ' . $runs . ' times');
 
 //Containers to be tested (dir names)
-$containers =  ['dice', 'laravel', 'di52'];
+$containers =  [ 'auryn', 'dice', 'laravel', 'njasm', 'php-di', 'pimple', 'symfonydi', 'zend-di', 'di52'];
 
 
 //Default ini file to use for tests
@@ -76,7 +76,7 @@ $testdescriptions = [1 => 'Create single object (incl autoload time)',
 
 for ($test = 1; $test <= $numTests; $test++) {
 	$html .= '<h2>Test ' . $test . ' - ' . $testdescriptions[$test]  . '</h2>';
-	$html .= '<table>';
+	$html .= '<table data-graph-container-before="1" data-graph-type="column">';
 	cliPrint('Starting test:' . $test);
 
 	$containerInfo = [];
@@ -115,8 +115,8 @@ for ($test = 1; $test <= $numTests; $test++) {
 	foreach ($containerInfo as $containerDetail) {
 		$html .= '<tr>';
 		$html .= '<td>' . $containerDetail['name'] .'</td>';
-		$html .= '<td>' . $containerDetail['time'] . '</td>';
-		$html .= '<td>' . $containerDetail['memory'] . '</td>';
+		$html .= '<td>' . $containerDetail['time'] * 1000 . '</td>';
+		$html .= '<td>' . $containerDetail['memory'] * 100 . '</td>';
 		$html .= '<td>' . $containerDetail['files'] . '</td>';
 		$html .= '</tr>';
 		
@@ -128,4 +128,10 @@ for ($test = 1; $test <= $numTests; $test++) {
 }
 
 if (!$isCli) echo $html;
-else file_put_contents('test1-5_results.html', $html);
+else {
+	$html .= '<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>';
+	$html .= '<script src="https://code.highcharts.com/highcharts.js"></script>';
+	$html .= '<script src="http://code.highcharttable.org/2.0.0/jquery.highchartTable-min.js"></script>';
+	$html .= '<script>$(document).ready(function() {$("table").highchartTable();});</script>';
+	file_put_contents('test1-5_results.html', $html);
+}
