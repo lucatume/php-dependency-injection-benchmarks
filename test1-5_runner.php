@@ -115,7 +115,7 @@ for ($test = 1; $test <= $numTests; $test++) {
 	foreach ($containerInfo as $containerDetail) {
 		$html .= '<tr>';
 		$html .= '<td>' . $containerDetail['name'] .'</td>';
-		$html .= '<td>' . $containerDetail['time'] * 1000 . '</td>';
+		$html .= '<td>' . $containerDetail['time']  * 1000 . '</td>';
 		$html .= '<td>' . $containerDetail['memory'] * 100 . '</td>';
 		$html .= '<td>' . $containerDetail['files'] . '</td>';
 		$html .= '</tr>';
