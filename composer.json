@@ -15,6 +15,12 @@
       "email": "tom@r.je"
     }
   ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "/Users/Luca/Desktop/di52"
+    }
+  ],
   "require": {
     "php": ">=5.6.0",
     "level-2/Dice": "*",

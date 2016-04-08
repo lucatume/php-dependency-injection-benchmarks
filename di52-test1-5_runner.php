@@ -22,7 +22,7 @@ $runs = 10;
 cliPrint('Running each test ' . $runs . ' times');
 
 //Containers to be tested (dir names)
-$containers = ['auryn', 'dice', 'laravel', 'njasm', 'php-di', 'pimple', 'di52', 'di52-ArrayAccess'];
+$containers = ['di52', 'di52-ArrayAccess'];
 
 
 //Default ini file to use for tests
