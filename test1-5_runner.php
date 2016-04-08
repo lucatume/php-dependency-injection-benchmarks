@@ -1,29 +1,30 @@
 <?php
-//You shouldn't have max_exectution_time set high enough to run these benchmarks 
+//You shouldn't have max_exectution_time set high enough to run these benchmarks
 ini_set('max_execution_time', 90000);
 opcache_reset();
 $isCli = php_sapi_name() == 'cli';
-function cliPrint($text, $newLine = true)
-{
-    $isCli = php_sapi_name() == 'cli';
-    if ($isCli) {
-        echo $text;
-        if ($newLine) echo "\n";
-    }
+function cliPrint($text, $newLine = true) {
+	$isCli = php_sapi_name() == 'cli';
+	if ($isCli) {
+		echo $text;
+		if ($newLine) {
+			echo "\n";
+		}
+
+	}
 }
 
 cliPrint('Starting benchmarks');
 
 $html = '';
 
-//Number of times to run each test before taking an average 
+//Number of times to run each test before taking an average
 
 $runs = 10;
 cliPrint('Running each test ' . $runs . ' times');
 
 //Containers to be tested (dir names)
-$containers = ['auryn', 'dice', 'laravel', 'njasm', 'php-di', 'pimple', 'di52', 'di52-ArrayAccess'];
-
+$containers = ['auryn', 'dice', 'laravel', 'njasm', 'php-di', 'pimple', 'di52'];
 
 //Default ini file to use for tests
 $defaultIni = getcwd() . DIRECTORY_SEPARATOR . 'php.ini';
@@ -38,102 +39,103 @@ $cwd = getcwd();
 $numTests = 5;
 cliPrint('Running tests 1 - ' . $numTests);
 
-function average($array, $dp = 4)
-{
-    sort($array, SORT_NUMERIC);
+function average($array, $dp = 4) {
+	sort($array, SORT_NUMERIC);
 
-    $smallest = $array[0];
-    $num = 0;
-    $total = 0;
+	$smallest = $array[0];
+	$num = 0;
+	$total = 0;
 
-    //Discard any values that were over 20% slower than the smallest as something likely happened to cause a blip in speed. A single 
-    //slow result would skew the results using a standard mean.
-    foreach ($array as $val) {
-        if ($val <= $smallest * 1.2) {
-            $num++;
-            $total += $val;
-        }
-    }
+	//Discard any values that were over 20% slower than the smallest as something likely happened to cause a blip in speed. A single
+	//slow result would skew the results using a standard mean.
+	foreach ($array as $val) {
+		if ($val <= $smallest * 1.2) {
+			$num++;
+			$total += $val;
+		}
+	}
 
-    return round($total / $num, $dp);
+	return round($total / $num, $dp);
 }
 
-//Run a PHP script via exec, using the specified php.ini 
-function runScript($file, $iniFile, $args = [])
-{
-    exec('php -c ' . $iniFile . ' ' . $file . ' ' . implode(' ', $args), $output, $exitCode);
-    return $output;
+//Run a PHP script via exec, using the specified php.ini
+function runScript($file, $iniFile, $args = []) {
+	exec('php -c ' . $iniFile . ' ' . $file . ' ' . implode(' ', $args), $output, $exitCode);
+	return $output;
 }
-
 
 //Some very basic styling
 $html .= '<style>td,th {padding: 5px; border: 1px solid #aaa; text-align: right;}</style>';
 
 $testdescriptions = [1 => 'Create single object (incl autoload time)',
-    2 => 'Create single object (excl autoload time)',
-    3 => 'Create deep object graph',
-    4 => 'Fetch the same instance (service) from the container repeatedly',
-    5 => 'Inject a service into a new object repeatedly'
+	2 => 'Create single object (excl autoload time)',
+	3 => 'Create deep object graph',
+	4 => 'Fetch the same instance (service) from the container repeatedly',
+	5 => 'Inject a service into a new object repeatedly',
 ];
 
 for ($test = 1; $test <= $numTests; $test++) {
-    $html .= '<h2>Test ' . $test . ' - ' . $testdescriptions[$test] . '</h2>';
-    $html .= '<table data-graph-container-before="1" data-graph-type="column">';
-    cliPrint('Starting test:' . $test);
+	$html .= '<h2>Test ' . $test . ' - ' . $testdescriptions[$test] . '</h2>';
+	$html .= '<table data-graph-container-before="1" data-graph-type="column">';
+	cliPrint('Starting test:' . $test);
 
-    $containerInfo = [];
+	$containerInfo = [];
 
-    $html .= '<thead><tr><th>Container</th><th>Time</th><th>Memory</th><th>Files</th></thead>';
+	$html .= '<thead><tr><th>Container</th><th>Time</th><th>Memory</th><th>Files</th></thead>';
 
-    foreach ($containers as $container) {
-        cliPrint('');
-        cliPrint('Benchmarking container:' . $container);
-        $memory = [];
-        $time = [];
-        $files = [];
-        $output = [];
+	foreach ($containers as $container) {
+		cliPrint('');
+		cliPrint('Benchmarking container:' . $container);
+		$memory = [];
+		$time = [];
+		$files = [];
+		$output = [];
 
-        for ($i = 0; $i < $runs; $i++) {
-            cliPrint($container . ' test' . $test . ' : ' . ($i + 1) . '/' . $runs);
-            $output = runScript('./' . $container . '/test' . $test . '.php', $inis[$container]);
-            $result = json_decode($output[0]);
-            if (!is_object($result)) echo $container . $test . '<br />';
-            $time[] = $result->time;
-            $memory[] = $result->memory;
-            $files[] = $result->files;
-        }
+		for ($i = 0; $i < $runs; $i++) {
+			cliPrint($container . ' test' . $test . ' : ' . ($i + 1) . '/' . $runs);
+			$output = runScript('./' . $container . '/test' . $test . '.php', $inis[$container]);
+			$result = json_decode($output[0]);
+			if (!is_object($result)) {
+				echo $container . $test . '<br />';
+			}
 
+			$time[] = $result->time;
+			$memory[] = $result->memory;
+			$files[] = $result->files;
+		}
 
-        $containerInfo[] = ['name' => $container, 'time' => average($time), 'memory' => average($memory), 'files' => average($files)];
-    }
+		$containerInfo[] = ['name' => $container, 'time' => average($time), 'memory' => average($memory), 'files' => average($files)];
+	}
 
-    //Sort the results by time
-    usort($containerInfo, function ($a, $b) {
-        if ($a['time'] == $b['time']) return ($a['memory'] < $b['memory']) ? -1 : 1;
+	//Sort the results by time
+	usort($containerInfo, function ($a, $b) {
+		if ($a['time'] == $b['time']) {
+			return ($a['memory'] < $b['memory']) ? -1 : 1;
+		}
 
-        return ($a['time'] < $b['time']) ? -1 : 1;
-    });
+		return ($a['time'] < $b['time']) ? -1 : 1;
+	});
 
-    foreach ($containerInfo as $containerDetail) {
-        $html .= '<tr>';
-        $html .= '<td>' . $containerDetail['name'] . '</td>';
-        $html .= '<td>' . $containerDetail['time'] * 1000 . '</td>';
-        $html .= '<td>' . $containerDetail['memory'] * 100 . '</td>';
-        $html .= '<td>' . $containerDetail['files'] . '</td>';
-        $html .= '</tr>';
+	foreach ($containerInfo as $containerDetail) {
+		$html .= '<tr>';
+		$html .= '<td>' . $containerDetail['name'] . '</td>';
+		$html .= '<td>' . $containerDetail['time'] * 1000 . '</td>';
+		$html .= '<td>' . $containerDetail['memory'] * 100 . '</td>';
+		$html .= '<td>' . $containerDetail['files'] . '</td>';
+		$html .= '</tr>';
 
-    }
+	}
 
-
-    $html .= '</table>';
+	$html .= '</table>';
 
 }
 
-if (!$isCli) echo $html;
-else {
-    $html .= '<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>';
-    $html .= '<script src="https://code.highcharts.com/highcharts.js"></script>';
-    $html .= '<script src="http://code.highcharttable.org/2.0.0/jquery.highchartTable-min.js"></script>';
-    $html .= '<script>$(document).ready(function() {$("table").highchartTable();});</script>';
-    file_put_contents('test1-5_results.html', $html);
+if (!$isCli) {
+	echo $html;
+} else {
+	$html .= '<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>';
+	$html .= '<script src="https://code.highcharts.com/highcharts.js"></script>';
+	$html .= '<script src="http://code.highcharttable.org/2.0.0/jquery.highchartTable-min.js"></script>';
+	$html .= '<script>$(document).ready(function() {$("table").highchartTable();});</script>';
+	file_put_contents('test1-5_results.html', $html);
 }
