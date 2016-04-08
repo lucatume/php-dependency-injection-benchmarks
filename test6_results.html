@@ -1,4 +1,66 @@
-<h2>Test 6 - Scalability</h2><p>This test measures the entire script execution time for the PHP process to launch, construct/configure the container and then
-have the container construct a specified number of objects. Fast containers with a slow startup time will score worse with fewer objects but improve in the rankings 
-as the number of objects is increased. Slower containers with fast startup times will rank highly with fewer objects but will lose out to faster containers once the number of objects gets high enough</p>
-Overhead time: 3.495<table><thead><tr><th>Container</th><th>10 objects</th><th>50 objects</th><th>100 objects</th><th>200 objects</th><th>500 objects</th><th>1000 objects</th><th>1500 objects</th></thead><tr><td>pimple</td><td>0.1767</td><td>0.1982</td><td>0.2589</td><td>0.3281</td><td>0.5135</td><td>0.8565</td><td>1.2091</td></tr><tr><td>phalcon</td><td>1.0103</td><td>0.9813</td><td>1.0059</td><td>1.0058</td><td>0.9699</td><td>0.9867</td><td>0.9583</td></tr><tr><td>dice</td><td>0.1571</td><td>0.2241</td><td>0.2817</td><td>0.2907</td><td>0.4508</td><td>0.7915</td><td>1.0386</td></tr><tr><td>symfonydi</td><td>0.4626</td><td>0.4771</td><td>0.4728</td><td>0.5013</td><td>0.5943</td><td>0.6568</td><td>0.7271</td></tr>
+<h2>Test 6 - Scalability</h2><p>This test measures the entire script execution time for the PHP process to launch,
+    construct/configure the container and then
+    have the container construct a specified number of objects. Fast containers with a slow startup time will score
+    worse with fewer objects but improve in the rankings
+    as the number of objects is increased. Slower containers with fast startup times will rank highly with fewer objects
+    but will lose out to faster containers once the number of objects gets high enough</p>
+Overhead time: 8.1335
+<table data-graph-container-before="1" data-graph-type="column">
+    <thead>
+    <tr>
+        <th>Container</th>
+        <th>10 objects</th>
+        <th>50 objects</th>
+        <th>100 objects</th>
+        <th>200 objects</th>
+        <th>500 objects</th>
+        <th>1000 objects</th>
+        <th>1500 objects</th>
+    </thead>
+    <tr>
+        <td>pimple</td>
+        <td>0.2457</td>
+        <td>0.2568</td>
+        <td>0.2528</td>
+        <td>0.3303</td>
+        <td>0.5681</td>
+        <td>0.8203</td>
+        <td>1.1541</td>
+    </tr>
+    <tr>
+        <td>dice</td>
+        <td>0.2822</td>
+        <td>0.298</td>
+        <td>0.3161</td>
+        <td>0.3661</td>
+        <td>0.5392</td>
+        <td>0.8266</td>
+        <td>1.0514</td>
+    </tr>
+    <tr>
+        <td>symfonydi</td>
+        <td>0.3367</td>
+        <td>0.3558</td>
+        <td>0.3537</td>
+        <td>0.3606</td>
+        <td>0.4192</td>
+        <td>0.4997</td>
+        <td>0.5435</td>
+    </tr>
+    <tr>
+        <td>di52</td>
+        <td>0.4866</td>
+        <td>0.4804</td>
+        <td>0.4558</td>
+        <td>0.5184</td>
+        <td>0.4951</td>
+        <td>0.5515</td>
+        <td>0.577</td>
+    </tr>
+</table>
+<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharttable.org/2.0.0/jquery.highchartTable-min.js"></script>
+<script>$(document).ready(function () {
+    $("table").highchartTable();
+});</script>

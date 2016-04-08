@@ -1,20 +1,22 @@
 <?php
-//You shouldn't have max_exectution_time set high enough to run these benchmarks 
+//You shouldn't have max_exectution_time set high enough to run these benchmarks
 ini_set('max_execution_time', 90000);
 opcache_reset();
 $isCli = php_sapi_name() == 'cli';
 function cliPrint($text, $newLine = true) {
-	$isCli = php_sapi_name() == 'cli';	
+	$isCli = php_sapi_name() == 'cli';
 	if ($isCli) {
 		echo $text;
-		if ($newLine) echo "\n";
+		if ($newLine) {
+			echo "\n";
+		}
+
 	}
 }
 
 cliPrint('Starting benchmarks');
 
 $html = '';
-
 
 //Increasing these numbers will inprove accuracy but increase the time this script takes to run.
 
@@ -25,9 +27,8 @@ $runs = 10;
 //use 100 or more for a more accurate result
 $iterations = 250;
 
-
 //Containers to be tested (dir names)
-$containers = ['pimple', 'phalcon', 'dice', 'symfonydi'];
+$containers = ['pimple', 'dice', 'symfonydi', 'di52'];
 
 //Default ini file to use for tests
 $defaultIni = getcwd() . DIRECTORY_SEPARATOR . 'php.ini';
@@ -37,8 +38,6 @@ $inis = array_fill_keys($containers, $defaultIni);
 $inis['phalcon'] = getcwd() . DIRECTORY_SEPARATOR . 'php-phalcon.ini';
 
 $cwd = getcwd();
-
-
 
 function average($array, $dp = 4) {
 	sort($array, SORT_NUMERIC);
@@ -65,11 +64,10 @@ function runScript($file, $iniFile, $args = []) {
 	return $output;
 }
 
-
 $html .= '<h2>Test 6 - Scalability</h2>';
 
-$html .=  '<p>This test measures the entire script execution time for the PHP process to launch, construct/configure the container and then
-have the container construct a specified number of objects. Fast containers with a slow startup time will score worse with fewer objects but improve in the rankings 
+$html .= '<p>This test measures the entire script execution time for the PHP process to launch, construct/configure the container and then
+have the container construct a specified number of objects. Fast containers with a slow startup time will score worse with fewer objects but improve in the rankings
 as the number of objects is increased. Slower containers with fast startup times will rank highly with fewer objects but will lose out to faster containers once the number of objects gets high enough</p>
 ';
 //Calculate the average overhead of running $iterations php scripts with a specified ini file
@@ -79,7 +77,7 @@ $overheads = [];
 
 for ($i = 0; $i < $runs; $i++) {
 	$t1 = microtime(true);
-	
+
 	for ($i = 0; $i < $iterations; $i++) {
 		runScript($blankScript, $defaultIni);
 	}
@@ -87,56 +85,59 @@ for ($i = 0; $i < $runs; $i++) {
 	$overheads[] = $t2 - $t1;
 }
 
-
 $overhead = average($overheads);
 
-$html .=  'Overhead time: ' . $overhead;
+$html .= 'Overhead time: ' . $overhead;
 
-$html .=  '<table>';
+$html .= '<table>';
 
-$html .=  '<thead><tr><th>Container</th>';
-
+$html .= '<thead><tr><th>Container</th>';
 
 //The number of J objects on each iteration for the tests. Each J object consists of 10 objects in total
 $objects = [1, 5, 10, 20, 50, 100, 150];
 
-
 foreach ($objects as $object) {
-	$html .=  '<th>' . $object *10 . ' objects</th>';
+	$html .= '<th>' . $object * 10 . ' objects</th>';
 }
 
-$html .=  '</thead>';
+$html .= '</thead>';
 
 cliPrint('Starting benchmark');
 
-foreach ($containers as $container) {	
+foreach ($containers as $container) {
 	cliPrint('Benchmarking container: ' . $container);
 
-	$html .=  '<tr>';
-	$html .=  '<td>' . $container .'</td>';
+	$html .= '<tr>';
+	$html .= '<td>' . $container . '</td>';
 
 	foreach ($objects as $objectcount) {
 		$results = [];
 		for ($i = 0; $i < $runs; $i++) {
-			cliPrint('Benchmarking container: ' . $container  . ' with ' . $objectcount*10 . ' objects run ' . $i . '/' . $runs);
+			cliPrint('Benchmarking container: ' . $container . ' with ' . $objectcount * 10 . ' objects run ' . $i . '/' . $runs);
 			$t1 = microtime(true);
 			for ($j = 0; $j < $iterations; $j++) {
 				$output = runScript($container . '/test6a.php', $inis[$container], [$objectcount]);
 			}
 			$t2 = microtime(true);
-			
+
 			$test = json_decode($output[0]);
-			if (!is_object($test)) print_r($output);
+			if (!is_object($test)) {
+				print_r($output);
+			}
+
 			$results[] = $t2 - $t1;
 		}
 		$result = average($results);
 
-		$html .=  '<td>' . ($result - $overhead) . '</td>';
+		$html .= '<td>' . ($result - $overhead) . '</td>';
 	}
 
 	$html .= '</tr>';
-	
+
 }
 
-if (!$isCli) echo $html;
-else file_put_contents('test6_results.html', $html);
+if (!$isCli) {
+	echo $html;
+} else {
+	file_put_contents('test6_results.html', $html);
+}
